@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Одиночные судоку 9×9 | Игры Алексея Клевко</title>
+    <link rel="stylesheet" href="css/single-sudoku.css">
+</head>
+<body>
+
+    <!-- Шапка страницы -->
+    <header class="single-header">
+        <div class="header-left">
+            <a href="index.html" class="btn-back" title="Вернуться на главную">
+                <span class="icon">←</span>
+                <span class="text">В каталог</span>
+            </a>
+            <div class="title-group">
+                <span class="game-type-badge" id="game-badge">Одиночный режим 9×9</span>
+                <h1 class="game-heading" id="game-heading">Killer Sudoku</h1>
+            </div>
+        </div>
+
+        <div class="header-center">
+            <div class="timer-box" id="timer-box">
+                <span class="timer-icon">⏱️</span>
+                <span id="timer-text">00:00</span>
+            </div>
+        </div>
+
+        <div class="header-right">
+            <button id="btn-new-game" class="header-action-btn primary" title="Новая случайная партия">
+                <span class="btn-icon">🔄</span>
+                <span class="btn-text">Новая игра</span>
+            </button>
+            <button id="btn-open-rules" class="header-action-btn rules-btn" title="Смотреть правила">
+                <span class="btn-icon">❓</span>
+                <span class="btn-text">Правила</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- Полоса быстрого переключения между 8 вариантами судоку -->
+    <nav class="variant-navbar" aria-label="Выбор варианта судоку">
+        <div class="navbar-scroll">
+            <button class="nav-variant-btn" data-variant="normal">
+                <span class="variant-dot dot-normal"></span>
+                <span>Normal Sudoku</span>
+            </button>
+            <button class="nav-variant-btn" data-variant="comparison">
+                <span class="variant-dot dot-comparison"></span>
+                <span>&gt;Sudoku&lt;</span>
+            </button>
+            <button class="nav-variant-btn active" data-variant="killer">
+                <span class="variant-dot dot-killer"></span>
+                <span>Killer Sudoku</span>
+            </button>
+            <button class="nav-variant-btn" data-variant="sudoku_x">
+                <span class="variant-dot dot-sudoku_x"></span>
+                <span>Sudoku X</span>
+            </button>
+            <button class="nav-variant-btn" data-variant="offset">
+                <span class="variant-dot dot-offset"></span>
+                <span>Offset Sudoku</span>
+            </button>
+            <button class="nav-variant-btn" data-variant="strange_boxes">
+                <span class="variant-dot dot-strange_boxes"></span>
+                <span>Strange Boxes</span>
+            </button>
+            <button class="nav-variant-btn" data-variant="consecutive">
+                <span class="variant-dot dot-consecutive"></span>
+                <span>Consecutive</span>
+            </button>
+            <button class="nav-variant-btn" data-variant="addition">
+                <span class="variant-dot dot-addition"></span>
+                <span>Addition</span>
+            </button>
+            <a href="sudoku.html" class="nav-variant-btn link-super" title="Открыть кольцевое Super Sudoku 8-в-1">
+                <span>🧩 Super Sudoku (8 в 1) →</span>
+            </a>
+        </div>
+    </nav>
+
+    <!-- Игровая область: только одна сетка 9х9 -->
+    <main class="single-game-layout">
+        <div class="board-card">
+            <!-- Краткое описание правил над полем -->
+            <div class="board-subtitle-banner" id="board-subtitle-banner">
+                <span class="banner-icon" id="banner-icon">🟩</span>
+                <span class="banner-desc" id="banner-desc">Поле поделено на цветные области. Сумма цифр внутри области указана в углу.</span>
+            </div>
+
+            <!-- Контейнер сетки 9х9 с SVG слоем -->
+            <div class="single-board-container" id="single-board-container">
+                <svg id="single-svg-layer" class="single-svg-layer" viewBox="0 0 450 450">
+                    <g id="svg-diagonals"></g>
+                    <g id="svg-cages"></g>
+                    <g id="svg-bridges"></g>
+                    <g id="svg-inequalities"></g>
+                    <g id="svg-jigsaw-borders"></g>
+                    <g id="svg-addition-math"></g>
+                </svg>
+
+                <div class="single-cells-grid" id="single-cells-grid"></div>
+            </div>
+        </div>
+
+        <!-- Панель управления и клавиатура -->
+        <section class="single-keypad">
+            <div class="keypad-toolbar">
+                <button id="tool-undo" class="tool-btn" title="Отменить ход">
+                    <span class="icon">↩</span>
+                    <span>Отмена</span>
+                </button>
+                <button id="tool-redo" class="tool-btn" title="Повторить ход">
+                    <span class="icon">↪</span>
+                    <span>Повтор</span>
+                </button>
+                <button id="tool-pencil" class="tool-btn pencil-toggle" title="Режим заметок (Space/N)">
+                    <span class="icon">✏️</span>
+                    <span>Заметки</span>
+                    <span class="pencil-state" id="pencil-state">ВЫКЛ</span>
+                </button>
+                <button id="tool-erase" class="tool-btn" title="Стереть цифру">
+                    <span class="icon">⌫</span>
+                    <span>Стереть</span>
+                </button>
+                <button id="tool-check" class="tool-btn check-btn" title="Проверить ошибки">
+                    <span class="icon">✓</span>
+                    <span>Проверить</span>
+                </button>
+            </div>
+
+            <div class="digits-row">
+                <button class="digit-key" data-digit="1">1</button>
+                <button class="digit-key" data-digit="2">2</button>
+                <button class="digit-key" data-digit="3">3</button>
+                <button class="digit-key" data-digit="4">4</button>
+                <button class="digit-key" data-digit="5">5</button>
+                <button class="digit-key" data-digit="6">6</button>
+                <button class="digit-key" data-digit="7">7</button>
+                <button class="digit-key" data-digit="8">8</button>
+                <button class="digit-key" data-digit="9">9</button>
+            </div>
+        </section>
+    </main>
+
+    <!-- Подробный блок правил выбранного судоку внизу -->
+    <footer class="single-rules-section">
+        <div class="rules-card-detailed" id="rules-card-detailed">
+            <div class="rules-title-row">
+                <h2 id="rules-detailed-title">Правила Killer Sudoku</h2>
+                <span class="rules-tag" id="rules-detailed-tag">9×9 Головоломка</span>
+            </div>
+            
+            <div class="rules-summary-box">
+                <strong style="color: #fff;">Кратко о механике:</strong>
+                <p id="rules-detailed-summary">Заполните сетку числами от 1 до 9 в каждой строке, каждом столбце и блоке 3×3. Числа в пунктирных областях должны в сумме давать число в углу.</p>
+            </div>
+
+            <div class="rules-full-content" id="rules-detailed-content">
+                <!-- Подробные правила и стратегии решения -->
+            </div>
+        </div>
+    </footer>
+
+    <!-- Модальное окно правил -->
+    <div class="modal-backdrop" id="modal-rules">
+        <div class="modal-dialog">
+            <div class="modal-header">
+                <div class="modal-title-group">
+                    <span class="modal-icon">❓</span>
+                    <h3 id="modal-rules-title">Правила игры</h3>
+                </div>
+                <button class="modal-close-btn" data-close-modal="modal-rules">&times;</button>
+            </div>
+            <div class="modal-body" id="modal-rules-body">
+                <!-- Контент модалки -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Модальное окно новой игры -->
+    <div class="modal-backdrop" id="modal-new-game">
+        <div class="modal-dialog modal-small">
+            <div class="modal-header">
+                <div class="modal-title-group">
+                    <span class="modal-icon">🔄</span>
+                    <h3>Новая игра</h3>
+                </div>
+                <button class="modal-close-btn" data-close-modal="modal-new-game">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p>Выберите уровень сложности для генерации новой партии:</p>
+                <div class="difficulty-list">
+                    <button class="diff-btn" data-diff="diff_85">
+                        <strong>Новичок (85% заполнено)</strong>
+                        <span>Открыто ~69 цифр из 81. Очень комфортный старт.</span>
+                    </button>
+                    <button class="diff-btn featured" data-diff="diff_70">
+                        <strong>Легкая (70% заполнено)</strong>
+                        <span>Открыто ~57 цифр. Множество подсказок.</span>
+                    </button>
+                    <button class="diff-btn" data-diff="diff_55">
+                        <strong>Средняя (55% заполнено)</strong>
+                        <span>Открыто ~45 цифр. Сбалансированный вызов.</span>
+                    </button>
+                    <button class="diff-btn" data-diff="diff_40">
+                        <strong>Сложная (40% заполнено)</strong>
+                        <span>Открыто ~32 цифры. Упор на логику варианта.</span>
+                    </button>
+                    <button class="diff-btn" data-diff="diff_30">
+                        <strong>Эксперт (30% заполнено)</strong>
+                        <span>Открыто ~24 цифры. Глубокий логический анализ.</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Модальное окно победы -->
+    <div class="modal-backdrop" id="modal-victory">
+        <div class="modal-dialog modal-small victory-dialog">
+            <div class="victory-icon">🏆</div>
+            <h2>Судоку решено!</h2>
+            <p>Отличная работа! Вы успешно заполнили поле без единой ошибки.</p>
+            <div class="victory-time-box">
+                <span>Время решения:</span>
+                <strong id="victory-time">00:00</strong>
+            </div>
+            <button class="btn-primary" id="btn-victory-restart">Сыграть ещё раз</button>
+        </div>
+    </div>
+
+    <!-- Toast уведомления -->
+    <div class="toast-box" id="toast-box"></div>
+
+    <script src="js/single-sudoku.js"></script>
+</body>
+</html>

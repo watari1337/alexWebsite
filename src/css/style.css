@@ -1,41 +1,503 @@
+:root {
+    --primary: #4f46e5;
+    --primary-hover: #4338ca;
+    --bg: #0f172a;
+    --card-bg: rgba(30, 41, 59, 0.7);
+    --card-border: rgba(255, 255, 255, 0.1);
+    --text-main: #f8fafc;
+    --text-muted: #94a3b8;
+    --accent-sudoku: linear-gradient(135deg, #ec4899, #8b5cf6, #3b82f6);
+
+    /* Цвета 8 вариантов */
+    --c-normal: #fca5a5;
+    --c-comparison: #f472b6;
+    --c-killer: #86efac;
+    --c-sudoku_x: #93c5fd;
+    --c-offset: #c084fc;
+    --c-strange_boxes: #67e8f9;
+    --c-consecutive: #a3e635;
+    --c-addition: #fdba74;
+}
+
+* {
+    box-sizing: border-box;
+}
+
 body {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    background-color: #f4f7f6;
-    color: #333;
+    background: radial-gradient(circle at 80% 20%, #1e1b4b 0%, #0f172a 60%, #020617 100%);
+    color: var(--text-main);
     margin: 0;
-    padding: 0;
+    padding: 20px;
     display: flex;
     justify-content: center;
     align-items: center;
     min-height: 100vh;
+    overflow-x: hidden;
 }
+
+/* Карточка визитки */
 .card {
-    background: white;
-    padding: 40px;
-    border-radius: 12px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    background: var(--card-bg);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid var(--card-border);
+    padding: 48px 36px;
+    border-radius: 24px;
+    box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.5), 0 0 25px rgba(99, 102, 241, 0.15);
     text-align: center;
-    max-width: 400px;
+    max-width: 440px;
     width: 100%;
+    animation: fadeIn 0.6s ease-out;
+    position: relative;
+    z-index: 1;
 }
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.avatar-circle {
+    width: 72px;
+    height: 72px;
+    margin: 0 auto 20px auto;
+    border-radius: 50%;
+    background: var(--accent-sudoku);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 26px;
+    font-weight: 700;
+    color: white;
+    box-shadow: 0 8px 20px rgba(139, 92, 246, 0.35);
+}
+
 h1 {
-    margin: 0 0 10px 0;
-    font-size: 28px;
-    color: #111;
+    margin: 0 0 8px 0;
+    font-size: 30px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    color: #fff;
 }
-p {
-    color: #666;
-    font-size: 16px;
-    line-height: 1.5;
-    margin: 0 0 20px 0;
-}
-.links a {
-    display: inline-block;
-    margin: 5px 10px;
-    color: #0076ff;
-    text-decoration: none;
+
+.tagline {
+    color: #a5b4fc;
+    font-size: 14px;
     font-weight: 500;
+    margin: 0 0 16px 0;
 }
+
+.bio {
+    color: var(--text-muted);
+    font-size: 15px;
+    line-height: 1.6;
+    margin: 0 0 28px 0;
+}
+
+.links {
+    display: flex;
+    justify-content: center;
+    gap: 14px;
+    margin-bottom: 28px;
+}
+
+.links a {
+    display: inline-flex;
+    align-items: center;
+    padding: 8px 16px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    color: #cbd5e1;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
 .links a:hover {
-    text-decoration: underline;
+    background: rgba(255, 255, 255, 0.12);
+    color: #fff;
+    transform: translateY(-2px);
+    border-color: rgba(255, 255, 255, 0.25);
+}
+
+.quick-play-link {
+    width: 100%;
+    padding: 14px 20px;
+    background: var(--accent-sudoku);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 10px 25px -5px rgba(236, 72, 153, 0.4);
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.quick-play-link:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 14px 30px -5px rgba(236, 72, 153, 0.6);
+}
+
+/* Кнопка открытия боковой панели справа */
+.drawer-toggle-btn {
+    position: fixed;
+    top: 24px;
+    right: 24px;
+    z-index: 90;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 20px;
+    background: rgba(30, 41, 59, 0.85);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    color: #fff;
+    border-radius: 50px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.drawer-toggle-btn:hover {
+    background: rgba(51, 65, 85, 0.95);
+    transform: scale(1.04);
+    border-color: rgba(255, 255, 255, 0.3);
+}
+
+.drawer-toggle-btn .btn-icon {
+    font-size: 18px;
+}
+
+/* Боковая панель (Drawer) справа */
+.side-drawer {
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: 420px;
+    max-width: 92vw;
+    background: #0f172a;
+    border-left: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: -15px 0 35px rgba(0, 0, 0, 0.6);
+    z-index: 100;
+    transform: translateX(100%);
+    transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+    display: flex;
+    flex-direction: column;
+}
+
+.side-drawer.open {
+    transform: translateX(0);
+}
+
+.drawer-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(4px);
+    z-index: 95;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+}
+
+.drawer-backdrop.active {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.drawer-header {
+    padding: 24px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.drawer-title-group {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.drawer-icon {
+    font-size: 22px;
+}
+
+.drawer-header h2 {
+    margin: 0;
+    font-size: 20px;
+    color: #fff;
+    font-weight: 700;
+}
+
+.drawer-close-btn {
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    font-size: 30px;
+    cursor: pointer;
+    line-height: 1;
+    padding: 4px 8px;
+    border-radius: 8px;
+    transition: color 0.2s;
+}
+
+.drawer-close-btn:hover {
+    color: #fff;
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.drawer-content {
+    padding: 20px 24px;
+    overflow-y: auto;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+/* Блоки категорий */
+.category-block {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.category-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.category-icon {
+    font-size: 16px;
+}
+
+.category-title {
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: #a5b4fc;
+}
+
+/* Карточки проектов */
+.project-card {
+    background: rgba(30, 41, 59, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 16px;
+    padding: 20px;
+    position: relative;
+    transition: all 0.25s ease;
+}
+
+.project-card.featured {
+    border-color: rgba(139, 92, 246, 0.4);
+    background: linear-gradient(180deg, rgba(30, 41, 59, 0.8) 0%, rgba(20, 24, 40, 0.9) 100%);
+    box-shadow: 0 8px 25px -5px rgba(139, 92, 246, 0.15);
+}
+
+.project-card.featured:hover {
+    transform: translateY(-3px);
+    border-color: rgba(139, 92, 246, 0.7);
+    box-shadow: 0 12px 30px -5px rgba(139, 92, 246, 0.3);
+}
+
+.card-badge {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    background: var(--accent-sudoku);
+    color: #fff;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 20px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.card-badge.coming-soon {
+    background: rgba(255, 255, 255, 0.1);
+    color: #94a3b8;
+}
+
+.card-preview {
+    height: 70px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 14px;
+    background: rgba(15, 23, 42, 0.6);
+}
+
+.card-preview.sudoku-preview {
+    background: radial-gradient(circle at center, rgba(139, 92, 246, 0.2), transparent 70%);
+    border: 1px dashed rgba(139, 92, 246, 0.3);
+}
+
+.preview-mini-grid {
+    font-size: 32px;
+}
+
+.project-card h3 {
+    margin: 0 0 8px 0;
+    font-size: 18px;
+    color: #fff;
+    font-weight: 700;
+}
+
+.project-card p {
+    color: var(--text-muted);
+    font-size: 13.5px;
+    line-height: 1.5;
+    margin: 0 0 14px 0;
+}
+
+.card-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 18px;
+}
+
+.card-tags span {
+    background: rgba(255, 255, 255, 0.05);
+    color: #a5b4fc;
+    font-size: 11px;
+    padding: 3px 8px;
+    border-radius: 6px;
+}
+
+.btn-play {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    padding: 12px 18px;
+    background: var(--accent-sudoku);
+    color: white;
+    text-decoration: none;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 600;
+    transition: all 0.2s ease;
+}
+
+.btn-play:hover {
+    filter: brightness(1.1);
+    transform: translateY(-1px);
+}
+
+/* Блок 8 отдельных судоку */
+.standalone-sudoku-block {
+    background: rgba(19, 27, 46, 0.7);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 16px;
+    padding: 16px;
+}
+
+.standalone-header h4 {
+    margin: 0 0 4px 0;
+    font-size: 15px;
+    color: #fff;
+}
+
+.standalone-subtitle {
+    font-size: 12px;
+    color: var(--text-muted);
+    display: block;
+    margin-bottom: 12px;
+}
+
+.standalone-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+}
+
+.variant-item-link {
+    display: flex;
+    flex-direction: column;
+    padding: 10px 12px;
+    background: rgba(15, 23, 42, 0.8);
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    border-radius: 10px;
+    text-decoration: none;
+    position: relative;
+    transition: all 0.2s ease;
+}
+
+.variant-item-link:hover {
+    background: rgba(30, 41, 59, 0.9);
+    transform: translateY(-2px);
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+.item-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    margin-bottom: 6px;
+}
+
+.item-normal .item-dot { background: var(--c-normal); box-shadow: 0 0 6px var(--c-normal); }
+.item-comparison .item-dot { background: var(--c-comparison); box-shadow: 0 0 6px var(--c-comparison); }
+.item-killer .item-dot { background: var(--c-killer); box-shadow: 0 0 6px var(--c-killer); }
+.item-sudoku_x .item-dot { background: var(--c-sudoku_x); box-shadow: 0 0 6px var(--c-sudoku_x); }
+.item-offset .item-dot { background: var(--c-offset); box-shadow: 0 0 6px var(--c-offset); }
+.item-strange_boxes .item-dot { background: var(--c-strange_boxes); box-shadow: 0 0 6px var(--c-strange_boxes); }
+.item-consecutive .item-dot { background: var(--c-consecutive); box-shadow: 0 0 6px var(--c-consecutive); }
+.item-addition .item-dot { background: var(--c-addition); box-shadow: 0 0 6px var(--c-addition); }
+
+.item-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: #fff;
+    margin-bottom: 2px;
+}
+
+.item-tag {
+    font-size: 11px;
+    color: var(--text-muted);
+}
+
+.project-card.upcoming {
+    opacity: 0.7;
+}
+
+@media (max-width: 600px) {
+    .drawer-toggle-btn {
+        top: 16px;
+        right: 16px;
+        padding: 10px 16px;
+        font-size: 13px;
+    }
+
+    .card {
+        padding: 32px 24px;
+    }
+
+    .standalone-grid {
+        grid-template-columns: 1fr;
+    }
 }

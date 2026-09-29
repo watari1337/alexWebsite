@@ -1,0 +1,1257 @@
+:root {
+    --bg-main: #090d16;
+    --bg-surface: #131b2e;
+    --bg-card: #1c2640;
+    --border-subtle: rgba(255, 255, 255, 0.08);
+    --border-focus: #6366f1;
+    --text-primary: #f8fafc;
+    --text-secondary: #94a3b8;
+    --text-muted: #64748b;
+
+    /* Цвета 8 вариантов судоку из оригинального пазла */
+    --c-normal: #fca5a5;
+    --c-normal-bg: rgba(239, 68, 68, 0.12);
+    --c-comparison: #f472b6;
+    --c-comparison-bg: rgba(244, 114, 182, 0.15);
+    --c-killer: #86efac;
+    --c-killer-bg: rgba(74, 222, 128, 0.12);
+    --c-sudoku_x: #93c5fd;
+    --c-sudoku_x-bg: rgba(59, 130, 246, 0.15);
+    --c-offset: #c084fc;
+    --c-offset-bg: rgba(192, 132, 252, 0.12);
+    --c-strange_boxes: #67e8f9;
+    --c-strange_boxes-bg: rgba(6, 182, 212, 0.12);
+    --c-consecutive: #a3e635;
+    --c-consecutive-bg: rgba(163, 230, 53, 0.12);
+    --c-addition: #fdba74;
+    --c-addition-bg: rgba(249, 115, 22, 0.15);
+
+    /* 9 цветов для Offset Sudoku */
+    --off-0: #fef08a; /* Желтый */
+    --off-1: #cbd5e1; /* Серый */
+    --off-2: #fdba74; /* Оранжевый */
+    --off-3: #f472b6; /* Розовый */
+    --off-4: #86efac; /* Мятный */
+    --off-5: #d6b49c; /* Бежевый */
+    --off-6: #4ade80; /* Зеленый */
+    --off-7: #ffffff; /* Белый */
+    --off-8: #c084fc; /* Сиреневый */
+
+    --cell-size: 32px;
+}
+
+* {
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background-color: var(--bg-main);
+    background-image: 
+        radial-gradient(at 10% 10%, rgba(99, 102, 241, 0.15) 0, transparent 50%),
+        radial-gradient(at 90% 90%, rgba(236, 72, 153, 0.15) 0, transparent 50%);
+    color: var(--text-primary);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    user-select: none;
+}
+
+/* ==========================================================================
+   Шапка (Header)
+   ========================================================================== */
+.game-header {
+    height: 64px;
+    padding: 0 20px;
+    background: rgba(19, 27, 46, 0.85);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border-subtle);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.btn-back-home {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--text-secondary);
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+    padding: 8px 12px;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--border-subtle);
+    transition: all 0.2s;
+}
+
+.btn-back-home:hover {
+    color: #fff;
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.game-title-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.game-title {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 800;
+    background: linear-gradient(135deg, #fff, #cbd5e1);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.game-subtitle {
+    font-size: 11px;
+    color: var(--text-muted);
+}
+
+.header-center {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.header-single-link {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 14px;
+    background: rgba(99, 102, 241, 0.15);
+    border: 1px solid rgba(99, 102, 241, 0.35);
+    border-radius: 12px;
+    color: #c7d2fe;
+    font-size: 13px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.2s ease;
+}
+
+.header-single-link:hover {
+    background: rgba(99, 102, 241, 0.3);
+    border-color: #818cf8;
+    color: #fff;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.25);
+}
+
+.game-mode-toggle {
+    display: flex;
+    background: rgba(15, 23, 42, 0.7);
+    border: 1px solid var(--border-subtle);
+    padding: 3px;
+    border-radius: 12px;
+}
+
+.mode-toggle-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 14px;
+    background: transparent;
+    border: none;
+    border-radius: 9px;
+    color: var(--text-secondary);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.mode-toggle-btn.active {
+    background: linear-gradient(135deg, #4f46e5, #7c3aed);
+    color: #fff;
+    box-shadow: 0 2px 10px rgba(99, 102, 241, 0.35);
+}
+
+.mode-toggle-btn:hover:not(.active) {
+    color: #fff;
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.timer-badge {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(0, 0, 0, 0.4);
+    border: 1px solid var(--border-subtle);
+    padding: 6px 14px;
+    border-radius: 30px;
+    font-family: monospace;
+    font-size: 16px;
+    font-weight: 700;
+    color: #38bdf8;
+    letter-spacing: 1px;
+}
+
+/* Полоса выбора одиночного судоку */
+.single-variant-bar {
+    background: rgba(19, 27, 46, 0.95);
+    border-bottom: 1px solid var(--border-subtle);
+    padding: 8px 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    overflow-x: auto;
+    backdrop-filter: blur(8px);
+}
+
+.single-bar-label {
+    font-size: 12px;
+    color: var(--text-muted);
+    font-weight: 600;
+    white-space: nowrap;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.single-tabs-scroll {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    overflow-x: auto;
+    scrollbar-width: none;
+}
+
+.single-tabs-scroll::-webkit-scrollbar {
+    display: none;
+}
+
+.single-tab-btn {
+    padding: 6px 12px;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid var(--border-subtle);
+    border-radius: 8px;
+    color: var(--text-secondary);
+    font-size: 12.5px;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.2s;
+}
+
+.single-tab-btn:hover {
+    background: rgba(255, 255, 255, 0.12);
+    color: #fff;
+}
+
+.single-tab-btn.active {
+    background: rgba(99, 102, 241, 0.25);
+    border-color: #6366f1;
+    color: #a5b4fc;
+}
+
+.header-right {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.header-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 14px;
+    border-radius: 10px;
+    border: 1px solid var(--border-subtle);
+    background: rgba(255, 255, 255, 0.06);
+    color: #fff;
+    font-size: 13.5px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.header-btn:hover {
+    background: rgba(255, 255, 255, 0.12);
+    transform: translateY(-1px);
+}
+
+.header-btn.primary {
+    background: linear-gradient(135deg, #6366f1, #8b5cf6);
+    border-color: rgba(139, 92, 246, 0.4);
+    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.25);
+}
+
+.header-btn.primary:hover {
+    filter: brightness(1.1);
+}
+
+.rules-btn {
+    background: rgba(236, 72, 153, 0.15);
+    border-color: rgba(236, 72, 153, 0.4);
+    color: #f472b6;
+}
+
+.rules-btn:hover {
+    background: rgba(236, 72, 153, 0.25);
+    color: #fff;
+}
+
+/* ==========================================================================
+   Баннер общего плана (Overview Banner)
+   ========================================================================== */
+.overview-banner {
+    background: linear-gradient(90deg, rgba(99, 102, 241, 0.2) 0%, rgba(236, 72, 153, 0.2) 100%);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 12px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    text-align: center;
+    font-size: 14.5px;
+    color: #f1f5f9;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.mode-focus .overview-banner {
+    display: none;
+}
+
+.banner-pulse {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    background: radial-gradient(circle at center, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+    animation: bannerPulse 2.5s infinite ease-in-out;
+    pointer-events: none;
+}
+
+@keyframes bannerPulse {
+    0%, 100% { opacity: 0.3; transform: scale(0.98); }
+    50% { opacity: 0.8; transform: scale(1.02); }
+}
+
+.banner-icon {
+    font-size: 18px;
+}
+
+/* ==========================================================================
+   Панель навигации в режиме фокусировки (Focus Bar)
+   ========================================================================== */
+.focus-bar {
+    display: none;
+    background: rgba(19, 27, 46, 0.95);
+    border-bottom: 1px solid rgba(99, 102, 241, 0.3);
+    padding: 10px 20px;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    position: sticky;
+    top: 64px;
+    z-index: 90;
+    backdrop-filter: blur(10px);
+}
+
+.mode-focus .focus-bar {
+    display: flex;
+}
+
+.btn-focus-back {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    color: #fff;
+    padding: 7px 14px;
+    border-radius: 8px;
+    font-size: 13.5px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+}
+
+.btn-focus-back:hover {
+    background: rgba(255, 255, 255, 0.18);
+}
+
+.focus-title-group {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.focus-badge {
+    background: rgba(99, 102, 241, 0.3);
+    color: #a5b4fc;
+    font-size: 12px;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 12px;
+    border: 1px solid rgba(99, 102, 241, 0.4);
+}
+
+.focus-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: #fff;
+}
+
+.btn-variant-info {
+    background: rgba(244, 114, 182, 0.15);
+    border: 1px solid rgba(244, 114, 182, 0.3);
+    color: #f472b6;
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-variant-info:hover {
+    background: rgba(244, 114, 182, 0.3);
+    color: #fff;
+}
+
+.focus-nav-controls {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.nav-arrow-btn {
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    color: #fff;
+    width: 34px;
+    height: 34px;
+    border-radius: 8px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    transition: all 0.2s;
+}
+
+.nav-arrow-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: scale(1.05);
+}
+
+.quick-jump-select {
+    background: #0f172a;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #fff;
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    outline: none;
+}
+
+/* ==========================================================================
+   Игровая область (Game Viewport & Board)
+   ========================================================================== */
+.game-viewport {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    overflow: auto;
+    position: relative;
+    min-height: 480px;
+}
+
+.board-wrapper {
+    position: relative;
+    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    transform-origin: center center;
+}
+
+/* Контейнер сетки 33x33 */
+.board-container {
+    position: relative;
+    width: 1056px;  /* 33 * 32px */
+    height: 1056px; /* 33 * 32px */
+    background: rgba(15, 23, 42, 0.6);
+    border-radius: 12px;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
+}
+
+/* SVG слой */
+.board-svg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 10;
+}
+
+/* Сетка ячеек (CSS Grid 33x33) */
+.cells-grid {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: grid;
+    grid-template-columns: repeat(33, 32px);
+    grid-template-rows: repeat(33, 32px);
+    z-index: 5;
+}
+
+/* Ячейка судоку */
+.cell {
+    width: 32px;
+    height: 32px;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 17px;
+    font-weight: 600;
+    cursor: pointer;
+    background: #111827;
+    border-right: 1px solid rgba(255, 255, 255, 0.08);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    transition: background 0.15s, border-color 0.15s;
+}
+
+/* Границы 3x3 блоков */
+.cell.box-border-right {
+    border-right: 2px solid #64748b !important;
+}
+.cell.box-border-bottom {
+    border-bottom: 2px solid #64748b !important;
+}
+.cell.outer-border-left {
+    border-left: 2px solid #64748b !important;
+}
+.cell.outer-border-top {
+    border-top: 2px solid #64748b !important;
+}
+
+/* Цветовые темы вариантов судоку */
+.cell.var-normal { background: var(--c-normal-bg); }
+.cell.var-comparison { background: var(--c-comparison-bg); }
+.cell.var-killer { background: var(--c-killer-bg); }
+.cell.var-sudoku_x { background: var(--c-sudoku_x-bg); }
+.cell.var-offset { background: var(--c-offset-bg); }
+.cell.var-strange_boxes { background: var(--c-strange_boxes-bg); }
+.cell.var-consecutive { background: var(--c-consecutive-bg); }
+.cell.var-addition { background: var(--c-addition-bg); }
+
+/* Аккуратные сплошные границы 3х3 для Killer Sudoku */
+.cell.var-killer.box-border-right {
+    border-right: 2px solid #475569 !important;
+}
+.cell.var-killer.box-border-bottom {
+    border-bottom: 2px solid #475569 !important;
+}
+.cell.var-killer.outer-border-left {
+    border-left: 2px solid #475569 !important;
+}
+.cell.var-killer.outer-border-top {
+    border-top: 2px solid #475569 !important;
+}
+
+/* Явные неоновые границы для фигурных областей Strange Boxes (Jigsaw) */
+.cell.jigsaw-border-top {
+    border-top: 3px solid #00f0ff !important;
+}
+.cell.jigsaw-border-bottom {
+    border-bottom: 3px solid #00f0ff !important;
+}
+.cell.jigsaw-border-left {
+    border-left: 3px solid #00f0ff !important;
+}
+.cell.jigsaw-border-right {
+    border-right: 3px solid #00f0ff !important;
+}
+
+/* Перекрывающиеся ячейки */
+.cell.overlap-cell {
+    box-shadow: inset 0 0 0 1px rgba(245, 158, 11, 0.4);
+}
+
+/* Цвета Offset ячеек */
+.cell.off-color-0 { background: rgba(254, 240, 138, 0.25) !important; color: #fef08a; }
+.cell.off-color-1 { background: rgba(203, 213, 225, 0.25) !important; color: #cbd5e1; }
+.cell.off-color-2 { background: rgba(253, 186, 116, 0.25) !important; color: #fdba74; }
+.cell.off-color-3 { background: rgba(244, 114, 182, 0.25) !important; color: #f472b6; }
+.cell.off-color-4 { background: rgba(134, 239, 172, 0.25) !important; color: #86efac; }
+.cell.off-color-5 { background: rgba(214, 180, 156, 0.25) !important; color: #d6b49c; }
+.cell.off-color-6 { background: rgba(74, 222, 128, 0.25) !important; color: #4ade80; }
+.cell.off-color-7 { background: rgba(255, 255, 255, 0.25) !important; color: #ffffff; }
+.cell.off-color-8 { background: rgba(192, 132, 252, 0.25) !important; color: #c084fc; }
+
+/* Addition синие и красные ячейки */
+.cell.add-blue {
+    background: rgba(59, 130, 246, 0.35) !important;
+    box-shadow: inset 0 0 6px rgba(59, 130, 246, 0.5);
+}
+.cell.add-red {
+    background: rgba(239, 68, 68, 0.35) !important;
+    box-shadow: inset 0 0 6px rgba(239, 68, 68, 0.5);
+}
+
+/* Статусы ячеек */
+.cell.initial {
+    font-weight: 800;
+    color: #ffffff;
+}
+
+.cell.user-value {
+    color: #38bdf8;
+    font-weight: 700;
+}
+
+.cell.selected {
+    background: rgba(99, 102, 241, 0.5) !important;
+    box-shadow: inset 0 0 0 2px #818cf8 !important;
+    z-index: 8;
+}
+
+.cell.highlight-match {
+    background: rgba(234, 179, 8, 0.25) !important;
+    color: #fef08a !important;
+}
+
+.cell.highlight-related {
+    background: rgba(255, 255, 255, 0.04);
+}
+
+.cell.error {
+    background: rgba(239, 68, 68, 0.4) !important;
+    color: #fca5a5 !important;
+}
+
+/* Заметки (Pencil Notes) */
+.cell-notes {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(3, 1fr);
+    width: 100%;
+    height: 100%;
+    padding: 1px;
+    font-size: 8px;
+    line-height: 1;
+    color: #94a3b8;
+    pointer-events: none;
+}
+
+.note-num {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Маленькое число-сумма Killer в левом верхнем углу */
+.cage-sum-label {
+    position: absolute;
+    top: 1px;
+    left: 1px;
+    font-size: 9px;
+    font-weight: 800;
+    line-height: 1;
+    color: #fff;
+    background: rgba(15, 23, 42, 0.85);
+    padding: 1px 3px;
+    border-radius: 3px;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.5);
+    pointer-events: none;
+    z-index: 6;
+}
+
+/* Плашки-заголовки 8 судоку на поле */
+.variant-label-badge {
+    position: absolute;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    background: rgba(15, 23, 42, 0.9);
+    border: 1px solid var(--border-subtle);
+    border-radius: 20px;
+    color: #fff;
+    font-size: 11px;
+    font-weight: 700;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+    z-index: 15;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.variant-label-badge:hover {
+    transform: scale(1.06);
+    border-color: rgba(255, 255, 255, 0.3);
+}
+
+.label-info-trigger {
+    background: none;
+    border: none;
+    padding: 0;
+    font-size: 12px;
+    cursor: pointer;
+    color: #a5b4fc;
+}
+
+/* Координаты плашек */
+.badge-normal { top: -28px; left: 440px; border-color: var(--c-normal); }
+.badge-comparison { top: 165px; left: 165px; border-color: var(--c-comparison); }
+.badge-killer { top: 355px; left: -20px; border-color: var(--c-killer); }
+.badge-sudoku_x { top: 795px; left: 165px; border-color: var(--c-sudoku_x); }
+.badge-offset { top: 1060px; left: 440px; border-color: var(--c-offset); }
+.badge-strange_boxes { top: 795px; left: 780px; border-color: var(--c-strange_boxes); }
+.badge-consecutive { top: 355px; left: 980px; border-color: var(--c-consecutive); }
+.badge-addition { top: 165px; left: 780px; border-color: var(--c-addition); }
+
+.banner-close-btn {
+    background: none;
+    border: none;
+    color: #fff;
+    font-size: 22px;
+    cursor: pointer;
+    padding: 0 8px;
+    margin-left: auto;
+    opacity: 0.7;
+    border-radius: 6px;
+    line-height: 1;
+    transition: opacity 0.2s, background 0.2s;
+}
+
+.banner-close-btn:hover {
+    opacity: 1;
+    background: rgba(255, 255, 255, 0.15);
+}
+
+/* ==========================================================================
+   Режим Overview vs Focus
+   ========================================================================== */
+.mode-overview .board-wrapper {
+    transform: scale(0.68);
+}
+
+@media (max-height: 800px) and (min-width: 901px) {
+    .mode-overview .board-wrapper {
+        transform: scale(0.58);
+    }
+}
+
+@media (max-width: 900px) {
+    .mode-overview .board-wrapper {
+        transform: scale(0.48);
+    }
+}
+
+@media (max-width: 500px) {
+    .mode-overview .board-wrapper {
+        transform: scale(0.34);
+    }
+}
+
+/* Подсветка судоку при наведении в Overview */
+.mode-overview .cell:hover {
+    filter: brightness(1.2);
+}
+
+/* Режим Focus: зум и центрирование */
+.mode-focus .variant-label-badge {
+    display: none;
+}
+
+/* ==========================================================================
+   Клавиатура ввода (Keypad)
+   ========================================================================== */
+.game-keypad {
+    background: rgba(19, 27, 46, 0.95);
+    border-top: 1px solid var(--border-subtle);
+    padding: 12px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    align-items: center;
+    position: sticky;
+    bottom: 0;
+    z-index: 100;
+    backdrop-filter: blur(12px);
+}
+
+.keypad-tools {
+    display: flex;
+    gap: 8px;
+    max-width: 600px;
+    width: 100%;
+    justify-content: center;
+}
+
+.tool-btn {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 10px;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid var(--border-subtle);
+    border-radius: 10px;
+    color: var(--text-primary);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.tool-btn:hover {
+    background: rgba(255, 255, 255, 0.12);
+}
+
+.pencil-toggle.active {
+    background: rgba(99, 102, 241, 0.25);
+    border-color: #6366f1;
+    color: #a5b4fc;
+}
+
+.pencil-indicator {
+    font-size: 10px;
+    padding: 2px 6px;
+    border-radius: 6px;
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.pencil-toggle.active .pencil-indicator {
+    background: #6366f1;
+    color: #fff;
+}
+
+.keypad-digits {
+    display: grid;
+    grid-template-columns: repeat(9, 1fr);
+    gap: 6px;
+    max-width: 600px;
+    width: 100%;
+}
+
+.digit-btn {
+    height: 48px;
+    background: rgba(30, 41, 59, 0.8);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 10px;
+    color: #fff;
+    font-size: 20px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.15s;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+}
+
+.digit-btn:hover {
+    background: rgba(51, 65, 85, 0.9);
+    border-color: rgba(255, 255, 255, 0.25);
+    transform: translateY(-2px);
+}
+
+.digit-btn:active {
+    transform: translateY(1px);
+}
+
+/* ==========================================================================
+   Нижний блок правил (Rules Bottom Section)
+   ========================================================================== */
+.rules-bottom-section {
+    background: #0b0f19;
+    border-top: 1px solid var(--border-subtle);
+    padding: 40px 20px 80px 20px;
+}
+
+.rules-container {
+    max-width: 1100px;
+    margin: 0 auto;
+}
+
+.rules-section-header {
+    text-align: center;
+    margin-bottom: 36px;
+}
+
+.rules-section-header h2 {
+    margin: 0 0 12px 0;
+    font-size: 26px;
+    color: #fff;
+}
+
+.rules-section-header p {
+    color: var(--text-secondary);
+    font-size: 15px;
+    line-height: 1.6;
+    max-width: 760px;
+    margin: 0 auto;
+}
+
+.rules-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+}
+
+.rule-card {
+    background: rgba(19, 27, 46, 0.6);
+    border: 1px solid var(--border-subtle);
+    border-radius: 16px;
+    padding: 20px;
+    transition: all 0.2s;
+}
+
+.rule-card:hover {
+    transform: translateY(-3px);
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+.rule-card-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+}
+
+.rule-num {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.rule-card-header h3 {
+    margin: 0;
+    font-size: 16px;
+    color: #fff;
+}
+
+.card-normal { color: var(--c-normal); }
+.card-comparison { color: var(--c-comparison); }
+.card-killer { color: var(--c-killer); }
+.card-sudoku_x { color: var(--c-sudoku_x); }
+.card-offset { color: var(--c-offset); }
+.card-strange_boxes { color: var(--c-strange_boxes); }
+.card-consecutive { color: var(--c-consecutive); }
+.card-addition { color: var(--c-addition); }
+
+.rule-summary {
+    color: #cbd5e1;
+    font-size: 13px;
+    line-height: 1.5;
+    margin: 0 0 12px 0;
+}
+
+.rule-list {
+    margin: 0;
+    padding-left: 18px;
+    color: var(--text-muted);
+    font-size: 12.5px;
+    line-height: 1.6;
+}
+
+/* ==========================================================================
+   Модальные окна (Modals)
+   ========================================================================== */
+.modal-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.75);
+    backdrop-filter: blur(8px);
+    z-index: 200;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s ease;
+}
+
+.modal-backdrop.active {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.modal-dialog {
+    background: #111827;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 20px;
+    width: 600px;
+    max-width: 100%;
+    max-height: 85vh;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 25px 50px rgba(0,0,0,0.8);
+    transform: scale(0.95);
+    transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.modal-backdrop.active .modal-dialog {
+    transform: scale(1);
+}
+
+.modal-header {
+    padding: 20px 24px;
+    border-bottom: 1px solid var(--border-subtle);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.modal-title-group {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.modal-header h3 {
+    margin: 0;
+    font-size: 19px;
+    color: #fff;
+}
+
+.modal-close-btn {
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    font-size: 28px;
+    cursor: pointer;
+    line-height: 1;
+    padding: 2px 6px;
+    border-radius: 6px;
+}
+
+.modal-close-btn:hover {
+    color: #fff;
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.modal-tabs {
+    display: flex;
+    padding: 10px 20px 0 20px;
+    gap: 6px;
+    border-bottom: 1px solid var(--border-subtle);
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+    white-space: nowrap;
+}
+
+.modal-tabs::-webkit-scrollbar {
+    height: 4px;
+}
+
+.modal-tabs::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 4px;
+}
+
+.tab-btn {
+    flex-shrink: 0;
+    background: none;
+    border: none;
+    padding: 8px 12px;
+    color: var(--text-muted);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    border-radius: 6px 6px 0 0;
+    transition: all 0.2s;
+}
+
+.tab-btn:hover {
+    color: #cbd5e1;
+    background: rgba(255, 255, 255, 0.04);
+}
+
+.tab-btn.active {
+    color: #818cf8;
+    border-color: #818cf8;
+    background: rgba(99, 102, 241, 0.12);
+}
+
+.modal-body {
+    padding: 24px;
+    overflow-y: auto;
+    color: var(--text-secondary);
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+.modal-footer {
+    padding: 16px 24px;
+    border-top: 1px solid var(--border-subtle);
+    display: flex;
+    justify-content: flex-end;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #6366f1, #8b5cf6);
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-primary:hover {
+    filter: brightness(1.1);
+}
+
+/* Опции выбора сложности */
+.level-options {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 16px;
+}
+
+.level-btn {
+    background: rgba(30, 41, 59, 0.7);
+    border: 1px solid var(--border-subtle);
+    padding: 16px;
+    border-radius: 14px;
+    text-align: left;
+    cursor: pointer;
+    position: relative;
+    transition: all 0.2s;
+}
+
+.level-btn:hover {
+    background: rgba(51, 65, 85, 0.8);
+    border-color: rgba(255, 255, 255, 0.25);
+    transform: translateY(-2px);
+}
+
+.level-btn.featured {
+    border-color: rgba(236, 72, 153, 0.5);
+    background: linear-gradient(180deg, rgba(30, 41, 59, 0.9), rgba(20, 24, 40, 0.9));
+}
+
+.level-badge {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    background: linear-gradient(135deg, #ec4899, #8b5cf6);
+    color: #fff;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: 12px;
+}
+
+.level-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 4px;
+}
+
+.level-desc {
+    font-size: 13px;
+    color: var(--text-muted);
+}
+
+/* Toast контейнер */
+.toast-container {
+    position: fixed;
+    bottom: 90px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 150;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    pointer-events: none;
+}
+
+.toast {
+    background: rgba(15, 23, 42, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    color: #fff;
+    padding: 10px 20px;
+    border-radius: 30px;
+    font-size: 13.5px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+    animation: toastPop 0.3s ease-out;
+}
+
+@keyframes toastPop {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Адаптивность для мобильных экранов */
+@media (max-width: 600px) {
+    .game-header {
+        padding: 0 12px;
+        height: 56px;
+    }
+    .game-title {
+        font-size: 15px;
+    }
+    .game-subtitle {
+        display: none;
+    }
+    .btn-back-home .text {
+        display: none;
+    }
+    .timer-badge {
+        font-size: 14px;
+        padding: 4px 10px;
+    }
+    .header-btn .btn-text {
+        display: none;
+    }
+    .header-btn {
+        padding: 6px 10px;
+    }
+    .focus-bar {
+        padding: 8px 12px;
+        top: 56px;
+    }
+    .btn-focus-back .btn-text {
+        display: none;
+    }
+    .focus-title {
+        font-size: 14px;
+    }
+    .digit-btn {
+        height: 44px;
+        font-size: 18px;
+    }
+}

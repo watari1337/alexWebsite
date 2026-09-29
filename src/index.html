@@ -3,23 +3,142 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Моя визитка</title>
+    <title>Алексей Клевко | Визитка & Проекты</title>
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
 
-    <div class="card">
+    <!-- Кнопка вызова боковой панели справа -->
+    <button id="open-drawer-btn" class="drawer-toggle-btn" aria-label="Открыть проекты и игры">
+        <span class="btn-icon">🎮</span>
+        <span class="btn-text">Игры и проекты</span>
+    </button>
+
+    <!-- Основная карточка-визитка -->
+    <main class="card">
+        <div class="avatar-circle">АК</div>
         <h1>Алексей Клевко</h1> 
-        
-        <!-- Небольшое описание -->
-        <p>Привет! Я создаю веб-сайты и это моя личная страница-визитка.</p>
+        <p class="tagline">Веб-разработчик & Создатель интерактивных проектов</p>
+        <p class="bio">Привет! Я создаю веб-сайты и браузерные игры. Это моя личная страница-визитка.</p>
         
         <div class="links">
-            <a href="https://github.com" target="_blank">GitHub</a>
-            <a href="https://t.me" target="_blank">Telegram</a>
+            <a href="https://github.com" target="_blank" rel="noopener">GitHub</a>
+            <a href="https://t.me" target="_blank" rel="noopener">Telegram</a>
             <a href="mailto:your-email@example.com">Email</a>
         </div>
-    </div>
 
+        <button id="quick-play-btn" class="quick-play-link">
+            <span>🧩 Каталог судоку & игр</span>
+        </button>
+    </main>
+
+    <!-- Затемнение фона при открытом меню -->
+    <div id="drawer-backdrop" class="drawer-backdrop"></div>
+
+    <!-- Боковая панель справа -->
+    <aside id="side-drawer" class="side-drawer" aria-hidden="true">
+        <div class="drawer-header">
+            <div class="drawer-title-group">
+                <span class="drawer-icon">🎮</span>
+                <h2>Каталог игр</h2>
+            </div>
+            <button id="close-drawer-btn" class="drawer-close-btn" aria-label="Закрыть панель">&times;</button>
+        </div>
+
+        <div class="drawer-content">
+            <!-- Категория 1: Судоку -->
+            <div class="category-block">
+                <div class="category-header">
+                    <span class="category-icon">🧩</span>
+                    <span class="category-title">Категория: Судоку</span>
+                </div>
+
+                <!-- Главная игра: Super Sudoku (8 в 1) -->
+                <div class="project-card featured">
+                    <div class="card-badge">Хит • 8 в 1</div>
+                    <div class="card-preview sudoku-preview">
+                        <span class="preview-mini-grid">🧩</span>
+                    </div>
+                    <h3>Super Sudoku</h3>
+                    <p>Грандиозный кольцевой пазл из 8 пересекающихся видов судоку. Общие блоки 3×3, режим Quick Focus для смартфонов и ПК!</p>
+                    <div class="card-tags">
+                        <span>Кольцо 8-в-1</span>
+                        <span>576 ячеек</span>
+                        <span>Carykh</span>
+                    </div>
+                    <a href="sudoku.html?mode=super" class="btn-play">
+                        <span>Играть в Super Sudoku</span>
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                    </a>
+                </div>
+
+                <!-- 8 судоку по отдельности -->
+                <div class="standalone-sudoku-block">
+                    <div class="standalone-header">
+                        <h4>8 судоку по отдельности:</h4>
+                        <span class="standalone-subtitle">Играйте в любой вариант 9×9 автономно</span>
+                    </div>
+                    
+                    <div class="standalone-grid">
+                        <a href="single-sudoku.html?variant=normal" class="variant-item-link item-normal" title="Играть в Normal Sudoku">
+                            <span class="item-dot"></span>
+                            <span class="item-title">Normal Sudoku</span>
+                            <span class="item-tag">Классика →</span>
+                        </a>
+                        <a href="single-sudoku.html?variant=comparison" class="variant-item-link item-comparison" title="Играть в >Sudoku<">
+                            <span class="item-dot"></span>
+                            <span class="item-title">&gt;Sudoku&lt;</span>
+                            <span class="item-tag">Неравенства →</span>
+                        </a>
+                        <a href="single-sudoku.html?variant=killer" class="variant-item-link item-killer" title="Играть в Killer Sudoku">
+                            <span class="item-dot"></span>
+                            <span class="item-title">Killer Sudoku</span>
+                            <span class="item-tag">Суммы →</span>
+                        </a>
+                        <a href="single-sudoku.html?variant=sudoku_x" class="variant-item-link item-sudoku_x" title="Играть в Sudoku X">
+                            <span class="item-dot"></span>
+                            <span class="item-title">Sudoku X</span>
+                            <span class="item-tag">Диагонали →</span>
+                        </a>
+                        <a href="single-sudoku.html?variant=offset" class="variant-item-link item-offset" title="Играть в Offset Sudoku">
+                            <span class="item-dot"></span>
+                            <span class="item-title">Offset Sudoku</span>
+                            <span class="item-tag">Цвета →</span>
+                        </a>
+                        <a href="single-sudoku.html?variant=strange_boxes" class="variant-item-link item-strange_boxes" title="Играть в Strange Boxes">
+                            <span class="item-dot"></span>
+                            <span class="item-title">Strange Boxes</span>
+                            <span class="item-tag">Jigsaw →</span>
+                        </a>
+                        <a href="single-sudoku.html?variant=consecutive" class="variant-item-link item-consecutive" title="Играть в Consecutive Sudoku">
+                            <span class="item-dot"></span>
+                            <span class="item-title">Consecutive</span>
+                            <span class="item-tag">Мостики →</span>
+                        </a>
+                        <a href="single-sudoku.html?variant=addition" class="variant-item-link item-addition" title="Играть в Addition Sudoku">
+                            <span class="item-dot"></span>
+                            <span class="item-title">Addition Sudoku</span>
+                            <span class="item-tag">Суммарное →</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Категория 2: Другие игры -->
+            <div class="category-block">
+                <div class="category-header">
+                    <span class="category-icon">🎲</span>
+                    <span class="category-title">Категория: Другие игры</span>
+                </div>
+                <div class="project-card upcoming">
+                    <div class="card-badge coming-soon">В разработке</div>
+                    <h3>Новые головоломки</h3>
+                    <p>Здесь появятся логические мини-игры (2048, Нонограммы, Сапер и др.).</p>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <script src="js/main.js"></script>
 </body>
 </html>

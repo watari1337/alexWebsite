@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Super Sudoku (8 в 1) | Мега-головоломка</title>
+    <link rel="stylesheet" href="css/sudoku.css">
+</head>
+<body class="mode-overview">
+
+    <!-- Верхняя панель управления (Header) -->
+    <header class="game-header">
+        <div class="header-left">
+            <a href="index.html" class="btn-back-home" title="Вернуться на главную">
+                <span class="icon">←</span>
+                <span class="text">На главную</span>
+            </a>
+            <div class="game-title-group">
+                <h1 class="game-title" id="main-page-title">🧩 Super Sudoku</h1>
+                <span class="game-subtitle" id="main-page-subtitle">8 видов судоку в одном кольце</span>
+            </div>
+        </div>
+
+        <div class="header-center">
+            <!-- Ссылка на одиночные судоку -->
+            <a href="single-sudoku.html" class="header-single-link" title="Открыть 8 вариантов судоку 9×9 автономно">
+                <span class="link-icon">🎯</span>
+                <span class="link-text">Одиночные 9×9 →</span>
+            </a>
+
+            <div class="timer-badge" id="timer-display" title="Время игры">
+                <span class="timer-icon">⏱️</span>
+                <span id="timer-text">00:00</span>
+            </div>
+        </div>
+
+        <div class="header-right">
+            <button id="btn-new-game" class="header-btn primary" title="Начать новую игру">
+                <span class="btn-icon">🔄</span>
+                <span class="btn-text">Новая игра</span>
+            </button>
+            <button id="btn-open-rules" class="header-btn rules-btn" title="Смотреть правила игры" aria-label="Правила игры">
+                <span class="rules-badge">❓</span>
+                <span class="btn-text">Правила</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- Баннер начального общего плана (Overview) -->
+    <div class="overview-banner" id="overview-banner">
+        <div class="banner-pulse"></div>
+        <span class="banner-icon">🔍</span>
+        <span class="banner-text"><strong>Общий план:</strong> нажми на любое судоку, чтобы приблизиться и начать играть!</span>
+        <button id="overview-banner-close" class="banner-close-btn" title="Скрыть подсказку" aria-label="Скрыть подсказку">&times;</button>
+    </div>
+
+    <!-- Панель быстрой навигации и фокусировки (Focus Navigation Bar) -->
+    <div class="focus-bar" id="focus-bar">
+        <button id="btn-back-overview" class="btn-focus-back" title="Вернуться к общему виду всех 8 судоку">
+            <span class="btn-icon">🔍</span>
+            <span class="btn-text">Общий план</span>
+        </button>
+
+        <div class="focus-title-group">
+            <span class="focus-badge" id="focus-badge">1 / 8</span>
+            <span class="focus-title" id="focus-title">Normal Sudoku</span>
+            <button class="btn-variant-info" id="focus-variant-info-btn" title="Правила этого варианта">
+                ℹ️ Правила
+            </button>
+        </div>
+
+        <div class="focus-nav-controls">
+            <button class="nav-arrow-btn" id="nav-prev-btn" title="Предыдущее судоку (против часовой)">⬅️</button>
+            <select id="quick-jump-select" class="quick-jump-select" aria-label="Выбор активного судоку">
+                <option value="normal">1. Normal Sudoku (Сверху)</option>
+                <option value="comparison">2. >Sudoku< (Сверху-слева)</option>
+                <option value="killer">3. Killer Sudoku (Слева)</option>
+                <option value="sudoku_x">4. Sudoku X (Снизу-слева)</option>
+                <option value="offset">5. Offset Sudoku (Снизу)</option>
+                <option value="strange_boxes">6. Strange Boxes (Снизу-справа)</option>
+                <option value="consecutive">7. Consecutive Sudoku (Справа)</option>
+                <option value="addition">8. Addition Sudoku (Сверху-справа)</option>
+            </select>
+            <button class="nav-arrow-btn" id="nav-next-btn" title="Следующее судоку (по часовой)">➡️</button>
+        </div>
+    </div>
+
+    <!-- Основная игровая зона -->
+    <main class="game-viewport" id="game-viewport">
+        <!-- Контейнер масштабирования и центрирования поля -->
+        <div class="board-wrapper" id="board-wrapper">
+            <!-- Сетка 33x33 с SVG наложением -->
+            <div class="board-container" id="board-container">
+                <!-- SVG-слой для мостиков, неравенств, рамок сумм, диагоналей -->
+                <svg id="board-svg-layer" class="board-svg" viewBox="0 0 1056 1056" preserveAspectRatio="none">
+                    <defs>
+                        <linearGradient id="diagGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stop-color="#ef4444" stop-opacity="0.8"/>
+                            <stop offset="100%" stop-color="#f87171" stop-opacity="0.8"/>
+                        </linearGradient>
+                    </defs>
+                    <!-- Линии диагоналей Sudoku X -->
+                    <g id="svg-diagonals"></g>
+                    <!-- Клетки сумм Killer Sudoku -->
+                    <g id="svg-killer-cages"></g>
+                    <!-- Жирные черные границы 3x3 для Killer Sudoku -->
+                    <g id="svg-killer-grid"></g>
+                    <!-- Границы фигурных блоков Strange Boxes (Jigsaw) -->
+                    <g id="svg-jigsaw-borders"></g>
+                    <!-- Мостики Consecutive Sudoku -->
+                    <g id="svg-consecutive-bridges"></g>
+                    <!-- Знаки неравенств >Sudoku< -->
+                    <g id="svg-inequalities"></g>
+                    <!-- Математические загадки (+, -, *, /, =) для Addition Sudoku -->
+                    <g id="svg-addition-math"></g>
+                </svg>
+
+                <!-- DOM-сетка ячеек -->
+                <div class="cells-grid" id="cells-grid"></div>
+
+                <!-- Интерактивные заголовки каждого из 8 судоку на поле -->
+                <div class="variant-label-badge badge-normal" data-sudoku="normal">
+                    <span class="label-name">Normal Sudoku</span>
+                    <button class="label-info-trigger" data-variant="normal" title="Правила">ℹ️</button>
+                </div>
+                <div class="variant-label-badge badge-comparison" data-sudoku="comparison">
+                    <span class="label-name">&gt;Sudoku&lt;</span>
+                    <button class="label-info-trigger" data-variant="comparison" title="Правила">ℹ️</button>
+                </div>
+                <div class="variant-label-badge badge-killer" data-sudoku="killer">
+                    <span class="label-name">Killer Sudoku</span>
+                    <button class="label-info-trigger" data-variant="killer" title="Правила">ℹ️</button>
+                </div>
+                <div class="variant-label-badge badge-sudoku_x" data-sudoku="sudoku_x">
+                    <span class="label-name">Sudoku X</span>
+                    <button class="label-info-trigger" data-variant="sudoku_x" title="Правила">ℹ️</button>
+                </div>
+                <div class="variant-label-badge badge-offset" data-sudoku="offset">
+                    <span class="label-name">Offset Sudoku</span>
+                    <button class="label-info-trigger" data-variant="offset" title="Правила">ℹ️</button>
+                </div>
+                <div class="variant-label-badge badge-strange_boxes" data-sudoku="strange_boxes">
+                    <span class="label-name">Strange Boxes</span>
+                    <button class="label-info-trigger" data-variant="strange_boxes" title="Правила">ℹ️</button>
+                </div>
+                <div class="variant-label-badge badge-consecutive" data-sudoku="consecutive">
+                    <span class="label-name">Consecutive</span>
+                    <button class="label-info-trigger" data-variant="consecutive" title="Правила">ℹ️</button>
+                </div>
+                <div class="variant-label-badge badge-addition" data-sudoku="addition">
+                    <span class="label-name">Addition Sudoku</span>
+                    <button class="label-info-trigger" data-variant="addition" title="Правила">ℹ️</button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Панель управления вводом (Keypad & Actions) -->
+    <section class="game-keypad" id="game-keypad">
+        <div class="keypad-tools">
+            <button id="tool-undo" class="tool-btn" title="Отменить ход (Ctrl+Z)">
+                <span class="tool-icon">↩</span>
+                <span class="tool-text">Отмена</span>
+            </button>
+            <button id="tool-redo" class="tool-btn" title="Повторить ход (Ctrl+Y)">
+                <span class="tool-icon">↪</span>
+                <span class="tool-text">Повтор</span>
+            </button>
+            <button id="tool-pencil" class="tool-btn pencil-toggle" title="Режим заметок карандашом (Space)">
+                <span class="tool-icon">✏️</span>
+                <span class="tool-text">Заметки</span>
+                <span class="pencil-indicator" id="pencil-indicator">ВЫКЛ</span>
+            </button>
+            <button id="tool-erase" class="tool-btn" title="Стереть цифру (Delete/Backspace)">
+                <span class="tool-icon">⌫</span>
+                <span class="tool-text">Стереть</span>
+            </button>
+            <button id="tool-check" class="tool-btn check-btn" title="Проверить текущие ошибки">
+                <span class="tool-icon">✓</span>
+                <span class="tool-text">Проверить</span>
+            </button>
+        </div>
+
+        <div class="keypad-digits">
+            <button class="digit-btn" data-digit="1">1</button>
+            <button class="digit-btn" data-digit="2">2</button>
+            <button class="digit-btn" data-digit="3">3</button>
+            <button class="digit-btn" data-digit="4">4</button>
+            <button class="digit-btn" data-digit="5">5</button>
+            <button class="digit-btn" data-digit="6">6</button>
+            <button class="digit-btn" data-digit="7">7</button>
+            <button class="digit-btn" data-digit="8">8</button>
+            <button class="digit-btn" data-digit="9">9</button>
+        </div>
+    </section>
+
+    <!-- Подробный блок описания правил снизу страницы -->
+    <footer class="rules-bottom-section">
+        <div class="rules-container">
+            <div class="rules-section-header">
+                <h2>📖 Полные правила и механики Super Sudoku</h2>
+                <p>Super Sudoku — это 8 классических и экспериментальных видов судоку 9×9, объединенных в одно замкнутое кольцо. Смежные судоку имеют общий угловой блок 3×3, цифры в котором должны одновременно удовлетворять правилам обоих судоку!</p>
+            </div>
+
+            <div class="rules-grid">
+                <!-- Карточка 1: Normal Sudoku -->
+                <div class="rule-card" id="rule-desc-normal">
+                    <div class="rule-card-header card-normal">
+                        <span class="rule-num">1</span>
+                        <h3>Normal Sudoku (Классика)</h3>
+                    </div>
+                    <p class="rule-summary">Никаких специальных модификаций. Стандартное судоку 9×9.</p>
+                    <ul class="rule-list">
+                        <li>В каждой строке, столбце и блоке 3×3 должны стоять цифры от 1 до 9 без повторений.</li>
+                        <li><strong>Связи:</strong> Нижний-левый блок 3×3 делит с <em>&gt;Sudoku&lt;</em>, а нижний-правый — с <em>Addition Sudoku</em>.</li>
+                    </ul>
+                </div>
+
+                <!-- Карточка 2: >Sudoku< -->
+                <div class="rule-card" id="rule-desc-comparison">
+                    <div class="rule-card-header card-comparison">
+                        <span class="rule-num">2</span>
+                        <h3>&gt;Sudoku&lt; (Неравенства)</h3>
+                    </div>
+                    <p class="rule-summary">Судоку сравнения с знаками больше и меньше.</p>
+                    <ul class="rule-list">
+                        <li>В строках, столбцах и блоках числа от 1 до 9.</li>
+                        <li>Между соседними клетками нанесены знаки <strong>&lt;, &gt;, ^, v</strong>. Цифры должны строго удовлетворять всем знакам неравенств.</li>
+                        <li><strong>Связи:</strong> Правый-верхний блок делит с <em>Normal</em>, а левый-нижний — с <em>Killer Sudoku</em>.</li>
+                    </ul>
+                </div>
+
+                <!-- Карточка 3: Killer Sudoku -->
+                <div class="rule-card" id="rule-desc-killer">
+                    <div class="rule-card-header card-killer">
+                        <span class="rule-num">3</span>
+                        <h3>Killer Sudoku (Суммы)</h3>
+                    </div>
+                    <p class="rule-summary">Судоку с областями сумм (cages).</p>
+                    <ul class="rule-list">
+                        <li>Поле поделено на цветные группы ячеек.</li>
+                        <li>Маленькое число в углу группы указывает <strong>сумму всех цифр</strong> внутри этой группы.</li>
+                        <li>Внутри одной группы цифры не могут повторяться.</li>
+                        <li><strong>Связи:</strong> Правый-верхний блок делит с <em>&gt;Sudoku&lt;</em>, а правый-нижний — с <em>Sudoku X</em>.</li>
+                    </ul>
+                </div>
+
+                <!-- Карточка 4: Sudoku X -->
+                <div class="rule-card" id="rule-desc-sudoku_x">
+                    <div class="rule-card-header card-sudoku_x">
+                        <span class="rule-num">4</span>
+                        <h3>Sudoku X (Диагонали)</h3>
+                    </div>
+                    <p class="rule-summary">Судоку с двумя главными диагоналями.</p>
+                    <ul class="rule-list">
+                        <li>Стандартные правила строк, колонок и блоков 3×3.</li>
+                        <li><strong>Две главные диагонали</strong> (отмечены красными линиями) также обязаны содержать все цифры от 1 до 9 без повторений!</li>
+                        <li><strong>Связи:</strong> Левый-верхний блок делит с <em>Killer</em>, а правый-нижний — с <em>Offset Sudoku</em>.</li>
+                    </ul>
+                </div>
+
+                <!-- Карточка 5: Offset Sudoku -->
+                <div class="rule-card" id="rule-desc-offset">
+                    <div class="rule-card-header card-offset">
+                        <span class="rule-num">5</span>
+                        <h3>Offset Sudoku (Цвета)</h3>
+                    </div>
+                    <p class="rule-summary">Судоку смещенных цветных групп (Disjoint Groups).</p>
+                    <ul class="rule-list">
+                        <li>Каждая ячейка в блоках 3×3 имеет один из 9 фиксированных цветов.</li>
+                        <li>Все ячейки <strong>одинакового цвета</strong> во всей сетке 9×9 также обязаны содержать цифры от 1 до 9 без повторений!</li>
+                        <li><strong>Связи:</strong> Левый-верхний блок делит с <em>Sudoku X</em>, а правый-верхний — со <em>Strange Boxes</em>.</li>
+                    </ul>
+                </div>
+
+                <!-- Карточка 6: Strange Boxes -->
+                <div class="rule-card" id="rule-desc-strange_boxes">
+                    <div class="rule-card-header card-strange_boxes">
+                        <span class="rule-num">6</span>
+                        <h3>Strange Boxes (Jigsaw / Фигуры)</h3>
+                    </div>
+                    <p class="rule-summary">Судоку с нерегулярными фигурными блоками.</p>
+                    <ul class="rule-list">
+                        <li>Строки и столбцы стандартные (1–9).</li>
+                        <li>Вместо квадратных блоков 3×3 поле разбито на <strong>9 фигурных областей</strong> сложной формы по 9 ячеек каждая. Каждая фигура содержит 1–9 без повторов.</li>
+                        <li><strong>Связи:</strong> Левый-нижний блок делит с <em>Offset</em>, а правый-верхний — с <em>Consecutive</em>.</li>
+                    </ul>
+                </div>
+
+                <!-- Карточка 7: Consecutive Sudoku -->
+                <div class="rule-card" id="rule-desc-consecutive">
+                    <div class="rule-card-header card-consecutive">
+                        <span class="rule-num">7</span>
+                        <h3>Consecutive (Мостики)</h3>
+                    </div>
+                    <p class="rule-summary">Судоку с мостиками между последовательными числами.</p>
+                    <ul class="rule-list">
+                        <li>Если соседние числа отличаются ровно на 1 (например, 3 и 4, 8 и 9), между ними нарисован <strong>розовый мостик</strong>.</li>
+                        <li><strong>Строгое правило:</strong> если мостика между соседними ячейками нет — эти цифры НЕ могут быть последовательными!</li>
+                        <li><strong>Связи:</strong> Левый-нижний блок делит со <em>Strange Boxes</em>, а левый-верхний — с <em>Addition</em>.</li>
+                    </ul>
+                </div>
+
+                <!-- Карточка 8: Addition Sudoku -->
+                <div class="rule-card" id="rule-desc-addition">
+                    <div class="rule-card-header card-addition">
+                        <span class="rule-num">8</span>
+                        <h3>Addition Sudoku (Суммарное)</h3>
+                    </div>
+                    <p class="rule-summary">Судоку с суммированием строк ячеек.</p>
+                    <ul class="rule-list">
+                        <li>Числа в ячейках, выделенных синим цветом, в сумме равны числу в красной ячейке под ними!</li>
+                        <li>Стандартные правила строк, столбцов и блоков 3×3 соблюдаются.</li>
+                        <li><strong>Связи:</strong> Правый-нижний блок делит с <em>Consecutive</em>, а левый-верхний — с <em>Normal Sudoku</em>.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Модальное окно: Общие правила игры (кнопка ❓) -->
+    <div class="modal-backdrop" id="modal-rules">
+        <div class="modal-dialog modal-rules-dialog">
+            <div class="modal-header">
+                <div class="modal-title-group">
+                    <span class="modal-icon">❓</span>
+                    <h3>Справочник правил Super Sudoku</h3>
+                </div>
+                <button class="modal-close-btn" data-close-modal="modal-rules">&times;</button>
+            </div>
+            <div class="modal-tabs" id="modal-rules-tabs">
+                <button class="tab-btn active" data-tab="all">🌟 Все</button>
+                <button class="tab-btn" data-tab="normal">1. Normal</button>
+                <button class="tab-btn" data-tab="comparison">2. &gt;Sudoku&lt;</button>
+                <button class="tab-btn" data-tab="killer">3. Killer</button>
+                <button class="tab-btn" data-tab="sudoku_x">4. Sudoku X</button>
+                <button class="tab-btn" data-tab="offset">5. Offset</button>
+                <button class="tab-btn" data-tab="strange_boxes">6. Strange Boxes</button>
+                <button class="tab-btn" data-tab="consecutive">7. Consecutive</button>
+                <button class="tab-btn" data-tab="addition">8. Addition</button>
+                <button class="tab-btn" data-tab="overlaps">🔄 Пересечения</button>
+            </div>
+            <div class="modal-body" id="modal-rules-body">
+                <!-- Контент генерируется динамически -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Модальное окно: Правила конкретного судоку -->
+    <div class="modal-backdrop" id="modal-variant-info">
+        <div class="modal-dialog modal-variant-dialog">
+            <div class="modal-header">
+                <div class="modal-title-group">
+                    <span class="variant-pill-badge" id="modal-variant-badge">1</span>
+                    <h3 id="modal-variant-title">Normal Sudoku</h3>
+                </div>
+                <button class="modal-close-btn" data-close-modal="modal-variant-info">&times;</button>
+            </div>
+            <div class="modal-body" id="modal-variant-content">
+                <!-- Описание конкретного судоку -->
+            </div>
+            <div class="modal-footer">
+                <button class="btn-primary" id="btn-focus-this-variant">Фокусироваться на этом судоку</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Модальное окно: Новая игра / Выбор уровня -->
+    <div class="modal-backdrop" id="modal-new-game">
+        <div class="modal-dialog modal-small">
+            <div class="modal-header">
+                <div class="modal-title-group">
+                    <span class="modal-icon">🔄</span>
+                    <h3>Начать новую игру</h3>
+                </div>
+                <button class="modal-close-btn" data-close-modal="modal-new-game">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p class="modal-intro">Выберите вариант игры. Прогресс текущей партии будет перезаписан.</p>
+                <div class="level-options">
+                    <button class="level-btn" data-level="diff_85">
+                        <div class="level-badge" style="background: #22c55e;">Новичок</div>
+                        <div class="level-title">85% заполнено</div>
+                        <div class="level-desc">Случайная генерация: открыто ~490 цифр из 576. Максимально комфортный старт.</div>
+                    </button>
+                    <button class="level-btn featured" data-level="diff_70">
+                        <div class="level-badge" style="background: #3b82f6;">Легкая</div>
+                        <div class="level-title">70% заполнено</div>
+                        <div class="level-desc">Случайная генерация: открыто ~403 цифры. Множество подсказок.</div>
+                    </button>
+                    <button class="level-btn" data-level="diff_55">
+                        <div class="level-badge" style="background: #eab308;">Средняя</div>
+                        <div class="level-title">55% заполнено</div>
+                        <div class="level-desc">Случайная генерация: открыто ~317 цифр. Сбалансированная сложность.</div>
+                    </button>
+                    <button class="level-btn" data-level="diff_40">
+                        <div class="level-badge" style="background: #f97316;">Сложная</div>
+                        <div class="level-title">40% заполнено</div>
+                        <div class="level-desc">Случайная генерация: открыто ~230 цифр. Настоящий вызов для логики.</div>
+                    </button>
+                    <button class="level-btn" data-level="diff_30">
+                        <div class="level-badge" style="background: #ef4444;">Эксперт</div>
+                        <div class="level-title">30% заполнено</div>
+                        <div class="level-desc">Случайная генерация: открыто ~173 цифры. Глубокий анализ всех 8 вариантов.</div>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Модальное окно победы -->
+    <div class="modal-backdrop" id="modal-victory">
+        <div class="modal-dialog modal-victory-dialog">
+            <div class="victory-header">
+                <span class="victory-trophy">🏆</span>
+                <h2>Поздравляем с победой!</h2>
+                <p>Вы успешно решили невероятный Super Sudoku из 8 перекрывающихся полей!</p>
+            </div>
+            <div class="victory-stats">
+                <div class="stat-box">
+                    <span class="stat-label">Время решения:</span>
+                    <span class="stat-val" id="victory-time">00:00</span>
+                </div>
+                <div class="stat-box">
+                    <span class="stat-label">Решено ячеек:</span>
+                    <span class="stat-val">576 / 576</span>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-primary" id="btn-victory-new">Новая игра</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Уведомления toast -->
+    <div class="toast-container" id="toast-container"></div>
+
+    <script src="js/sudoku.js"></script>
+</body>
+</html>

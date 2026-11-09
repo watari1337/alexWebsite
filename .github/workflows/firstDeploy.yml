@@ -1,0 +1,18 @@
+name: Deploy WebSite
+
+on:
+    push:
+        branches: [ main ]
+
+
+jobs:
+    deploy:
+        runs-on: watari
+
+        steps:
+            - name: Update repository and run Docker
+              run: |
+                cd ~/gitRep/alexWebsite
+                git switch main
+                git pull origin main
+                docker compose up -d --build

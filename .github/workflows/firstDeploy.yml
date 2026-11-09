@@ -7,7 +7,7 @@ on:
 
 jobs:
     deploy:
-        runs-on: watari
+        runs-on: self-hosted
 
         steps:
             - name: Update repository and run Docker
